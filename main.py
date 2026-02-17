@@ -1,5 +1,6 @@
 from typing import Any
 import requests
+import json
 from bs4 import BeautifulSoup
 
 
@@ -39,13 +40,21 @@ def parse_webster_page(page: requests.models.Response) -> str:
         raise AttributeError("Error: The word of the day could not be located!")
     return word_of_the_day
 
-def get_api_info(word:str)-> requests.models.Response:
-    return get_webcontent("https://api.dictionaryapi.dev/api/v2/entries/en/"+word)
+def get_api_info(word:str)-> None:
+    page = get_webcontent(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}")
+    js = page.json()
+    meanings = js[0]["meanings"]
+    #print(js)
+    for part_of_speech in meanings:
+        pos = part_of_speech["partOfSpeech"]
+        print(pos)
+        for d in part_of_speech["definitions"]:
+            print(d["definition"])
+        
 
-
-print(
-    parse_webster_page(
-        get_webster_page()
-    ),
-    get_api_info("canoodle")
+word = parse_webster_page(
+    get_webster_page()
 )
+
+
+get_api_info(word)
